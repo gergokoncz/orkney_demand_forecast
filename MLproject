@@ -1,0 +1,10 @@
+name: orkney_demand_forecast
+
+conda_env: conda.yaml
+
+entry_points:
+	main:
+		parameters:
+			weeks_train: {type: int, default: 20}
+			alpha: {type: float, deafult: 0.1}
+		command: "python3 train.py {weeks_train} {alpha}"
