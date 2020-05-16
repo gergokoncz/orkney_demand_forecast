@@ -2,9 +2,11 @@ name: orkney_demand_forecast
 channels:
     - defaults
 dependencies:
+    - python=3.7
     - numpy=1.18.1
     - pandas=1.0.1
     - scikit-learn=0.22.1
+    - cloudpickle=1.2.2
     - pip:
         - mlflow
         - influxdb
