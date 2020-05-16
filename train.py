@@ -19,8 +19,9 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from datetime import datetime, timedelta
 import mytransformers as mt
 import last_week_saver as ls
+import validate_model_selection as valm
 
-import os, warnings, sys
+import os, warnings, sys, shutil
 
 import logging
 logging.basicConfig(level = logging.WARN)
@@ -59,7 +60,7 @@ class OrkneyDemand(mlflow.pyfunc.PythonModel):
             ('dateFeatures', mt.DateTrendsAdder()),
             ('last_week', mt.LookUpOneWeekAgo())
         ])
-        ls.save_last_week(weeks)
+        ls.save_last_week(weeks + 5)
 
     def fit(self, X):
         #X = self.train_pipeline.fit_transform(X, shifter__weeks = 1)
@@ -84,11 +85,25 @@ if __name__ == '__main__':
     alpha = float(sys.argv[2] if len(sys.argv) > 2 else 0.2)
 
     demand_df = get_data(weeks)
+    # get model scores 
+    maes, rmses, r2s = valm.evaluate_best_model(weeks=weeks)
 
-    models = [Lasso(alpha), Ridge(alpha), RandomForestRegressor(max_depth = 8), DecisionTreeRegressor(max_depth = 20), SVR(kernel = 'poly', degree = 4)]
-    model_names = ['lasso', 'ridge', 'randomforest', 'tree', 'svr']
-    for idx,c_model in enumerate(models):
+    # decision is based on mae
+    best_idx = maes.index(min(maes))
+    models = [Lasso(alpha), Ridge(alpha), RandomForestRegressor(max_depth = 8)]
+    model_names = ['lasso', 'ridge', 'randomforest']
+    print(min(maes))
+    print(maes)
+    if min(maes) < 2.2:
         with mlflow.start_run():
+            model = OrkneyDemand(weeks, models[best_idx]).fit(demand_df)
+
+            if os.path.exists(os.getcwd() + '/model'):
+                shutil.rmtree(os.getcwd() + '/model')
+            mlflow.pyfunc.save_model("model", python_model= model, conda_env= 'conda.yaml')
+    """
+        with mlflow.start_run():
+    
     # cross validate
             tscv = TimeSeriesSplit(4)
             for train_idx, test_idx in tscv.split(demand_df['Total']):
@@ -103,6 +118,8 @@ if __name__ == '__main__':
                 mlflow.log_metric('rmse', rmse)
                 mlflow.log_metric('mae', mae)
                 mlflow.log_metric('r2', r2)
+            
     
     #mlflow.pyfunc.save_model("model", python_model = model, conda_env = 'conda.yaml')
+    """
 

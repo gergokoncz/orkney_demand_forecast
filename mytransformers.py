@@ -68,10 +68,26 @@ class HourlyAggregator(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X, y = None):
-        X_grouped = X.groupby(['year', 'month', 'day', 'hour']).mean()['Total']
+        
+        # first drop zero values then check if the hour contains at least 30 measurements
+        X = X.dropna()
+        X_count_checker = X.groupby(['year', 'month', 'day', 'hour']).count()
+        X_grouped = X.groupby(['year', 'month', 'day', 'hour']).mean()
+        X_grouped = X_grouped.join(X_count_checker, on = ['year', 'month', 'day', 'hour'], rsuffix = '_check')
+        
+        # if the hour contains less then 30 measurements, drop the value
+        X_grouped = X_grouped[X_grouped['Total_check'] > 30]['Total']
         for i in range(4)[::-1]:
             X_grouped = X_grouped.reset_index(level = i)
         
+        # if your total value is outside 3 standard deviation for the period you are considered an outlier
+        total_mean = X_grouped['Total'].mean()
+        diff = 3 * X_grouped['Total'].std()
+
+        X_grouped['stays'] = X_grouped['Total'].apply(lambda x: 1 if np.abs(x - total_mean) < diff else 0)
+        
+        X_grouped = X_grouped[X_grouped['stays'] == 1]
+        X_grouped = X_grouped.drop('stays', axis = 1)
         X_grouped['datetime'] = X_grouped.apply(datetime_builder, axis = 1)
         X_grouped['day_of_week'] = X_grouped['datetime'].apply(lambda x: x.dayofweek)
         return X_grouped.set_index('datetime')
