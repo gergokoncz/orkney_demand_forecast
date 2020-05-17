@@ -7,8 +7,9 @@ if __name__ == '__main__':
     to_test = test_df.to_json(orient = 'split')
     print(to_test)
     endpoint = "http://127.0.0.1:1234/invocations"
+    endpoint_remote = "http://40.127.163.91:5000/invocations"
     headers = {"Content-type": "application/json; format=pandas-split"}
-    response = requests.post(endpoint, json = json.loads(to_test), headers = headers)
+    response = requests.post(endpoint_remote, json = json.loads(to_test), headers = headers)
     print(response.text)
 
 
