@@ -1,8 +1,8 @@
 flavors:
   python_function:
-    cloudpickle_version: 1.4.1
+    cloudpickle_version: 1.2.2
     env: conda.yaml
     loader_module: mlflow.pyfunc.model
     python_model: python_model.pkl
     python_version: 3.6.9
-utc_time_created: '2020-05-17 09:25:02.845087'
+utc_time_created: '2020-05-18 08:31:23.649000'

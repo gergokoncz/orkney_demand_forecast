@@ -1,0 +1,15 @@
+artifact_uri: file:///home/gregkoncz/git/orkney_demand_forecast/mlruns/0/0d990a80ad84468ba8731dba6d0102d4/artifacts
+end_time: 1589656303483
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+name: ''
+run_id: 0d990a80ad84468ba8731dba6d0102d4
+run_uuid: 0d990a80ad84468ba8731dba6d0102d4
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1589656277307
+status: 3
+tags: []
+user_id: gregkoncz

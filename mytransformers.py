@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 
 hour_list = ['hour_{}'.format(str(i)) for i in range(24)]
+month_list = ['month_{}'.format(str(i)) for i in range(1,13)]
 day_of_week_list = ['day_of_week_{}'.format(str(i)) for i in range(7)]
 
 class DateTransformer(BaseEstimator, TransformerMixin):
@@ -101,9 +102,9 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X, y = None):
-        for col in ['hour', 'day_of_week']:
+        for col in ['hour', 'day_of_week', 'month']:
             X = X.join(pd.get_dummies(X[col], prefix=col))
-        for c_list in [hour_list, day_of_week_list]:
+        for c_list in [hour_list, day_of_week_list, month_list]:
             for col in c_list:
                 if col not in X.columns:
                     X[col] = 0
